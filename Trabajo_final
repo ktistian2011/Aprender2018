@@ -1,0 +1,753 @@
+# Librerias a utilizar
+# ==============================================================================
+!pip install fancyimpute
+!pip install pandas_profiling
+!pip3 install pandas_profiling --upgrade
+
+
+# Tratamiento de datos
+# ==============================================================================
+import pandas as pd
+import numpy as np
+
+
+# Preprocesado y modelado
+# ==============================================================================
+from collections import Counter
+from matplotlib.ticker import PercentFormatter
+import matplotlib.pyplot as plt
+import seaborn as sns
+import missingno as msno
+import pandas_profiling
+from fancyimpute import IterativeImputer 
+
+%matplotlib inline
+
+
+# Lectura de base de datos
+# ==============================================================================
+# Uso de Read csv:
+df = pd.read_csv("Base estudiantes 6 grado primaria 2018 USUARIA.csv",
+                 sep=";", #Que separe el los datos por el punto y coma.
+                 na_values = [' ',], #Le indico que un espacio vacío lo tome como NaN.
+                 decimal=',') #Que lea las comas(,) como separador decimal.
+df.head(5)
+
+
+# Visualización  de base de datos
+# ==============================================================================
+df.shape
+df.info()
+
+
+# Renombrar datos nulos
+# ==============================================================================
+df=df.replace(-9,np.nan)
+df=df.replace(-8,np.nan)
+df=df.replace(-6,np.nan)
+df=df.replace(-1,np.nan)
+
+df['sector']=df['sector'].replace(2,0)
+df['ambito']=df['ambito'].replace(2,0)
+df['ap1']=df['ap1'].replace(1,0)
+df['ap1']=df['ap1'].replace(2,0)
+df['ap1']=df['ap1'].replace(3,1)
+df['ap1']=df['ap1'].replace(4,1)
+df['ap1']=df['ap1'].replace(5,1)
+df['ap2']=df['ap2'].replace(2,0)
+df['ap3a']=df['ap3a'].replace(2,0)
+df['ap3a']=df['ap3a'].replace(3,0)
+df['ap3a']=df['ap3a'].replace(4,0)
+df['ap3a']=df['ap3a'].replace(5,0)
+df['ap3a']=df['ap3a'].replace(6,0)
+df['ap3a']=df['ap3a'].replace(7,0)
+df['ap3a']=df['ap3a'].replace(8,0)
+df['ap3a']=df['ap3a'].replace(9,0)
+df['ap4']=df['ap4'].replace(2,1)
+df['ap4']=df['ap4'].replace(3,1)
+df['ap4']=df['ap4'].replace(4,0)
+df['ap4']=df['ap4'].replace(5,0)
+df['ap4']=df['ap4'].replace(6,0)
+df['ap4']=df['ap4'].replace(7,0)
+df['ap4']=df['ap4'].replace(8,0)
+df['ap4']=df['ap4'].replace(9,0)
+df['ap4']=df['ap4'].replace(10,0)
+df['ap4']=df['ap4'].replace(11,np.nan)
+df['ap7a']=df['ap7a'].replace(2,0)
+df['ap7c']=df['ap7c'].replace(2,0)
+df['ap9']=df['ap9'].replace(1,0)
+df['ap9']=df['ap9'].replace(2,1)
+df['ap9']=df['ap9'].replace(3,1)
+df['ap9']=df['ap9'].replace(4,2)
+df['ap9']=df['ap9'].replace(5,2)
+df['ap9']=df['ap9'].replace(6,3)
+df['ap9']=df['ap9'].replace(7,3)
+df['ap9']=df['ap9'].replace(8,np.nan)
+df['ap10']=df['ap10'].replace(1,0)
+df['ap10']=df['ap10'].replace(2,1)
+df['ap10']=df['ap10'].replace(3,1)
+df['ap10']=df['ap10'].replace(4,2)
+df['ap10']=df['ap10'].replace(5,2)
+df['ap10']=df['ap10'].replace(6,3)
+df['ap10']=df['ap10'].replace(7,3)
+df['ap10']=df['ap10'].replace(8,np.nan)
+df['ap16']=df['ap16'].replace(2,1)
+df['ap16']=df['ap16'].replace(3,1)
+df['ap16']=df['ap16'].replace(4,0)
+df['ap16']=df['ap16'].replace(5,np.nan)
+df['ap17']=df['ap17'].replace(1,0)
+df['ap17']=df['ap17'].replace(2,1)
+df['ap17']=df['ap17'].replace(3,2)
+df['ap17']=df['ap17'].replace(4,2)
+df['ap24']=df['ap24'].replace(2,1)
+df['ap24']=df['ap24'].replace(3,1)
+df['ap24']=df['ap24'].replace(4,0)            
+df['ap26a']=df['ap26a'].replace(2,0)
+df['ap26b']=df['ap26b'].replace(2,0)
+df['ap27a']=df['ap27a'].replace(2,0)
+df['ap27b']=df['ap27b'].replace(2,0)
+df['ap35']=df['ap35'].replace(2,1)
+df['ap35']=df['ap35'].replace(3,1)
+df['ap35']=df['ap35'].replace(4,0)
+df['ap31']=df['ap31'].replace(2,0)
+df['ap36a']=df['ap36a'].replace(2,0)
+df['ap41b']=df['ap41b'].replace(2,1)
+df['ap41b']=df['ap41b'].replace(3,0)
+df['ap41b']=df['ap41b'].replace(4,0)
+df['compañeros']=df['compañeros'].replace(2,1)
+df['compañeros']=df['compañeros'].replace(3,0)
+df['compañeros']=df['compañeros'].replace(4,0)
+df['ldesemp']=df['ldesemp'].replace(2,0)
+df['ldesemp']=df['ldesemp'].replace(2,0)
+df['ldesemp']=df['ldesemp'].replace(3,1)
+df['ldesemp']=df['ldesemp'].replace(4,1)
+df['mdesemp']=df['mdesemp'].replace(1,0)
+df['mdesemp']=df['mdesemp'].replace(2,0)
+df['mdesemp']=df['mdesemp'].replace(3,1)
+df['mdesemp']=df['mdesemp'].replace(4,1)
+df['cod_provincia']=df['cod_provincia'].replace(2,3)
+df['cod_provincia']=df['cod_provincia'].replace(6,3)
+df['cod_provincia']=df['cod_provincia'].replace(10,2)
+df['cod_provincia']=df['cod_provincia'].replace(14,3)
+df['cod_provincia']=df['cod_provincia'].replace(18,1)
+df['cod_provincia']=df['cod_provincia'].replace(22,1)
+df['cod_provincia']=df['cod_provincia'].replace(26,5)
+df['cod_provincia']=df['cod_provincia'].replace(30,1)
+df['cod_provincia']=df['cod_provincia'].replace(34,1)
+df['cod_provincia']=df['cod_provincia'].replace(38,2)
+df['cod_provincia']=df['cod_provincia'].replace(42,3)
+df['cod_provincia']=df['cod_provincia'].replace(46,2)
+df['cod_provincia']=df['cod_provincia'].replace(50,4)
+df['cod_provincia']=df['cod_provincia'].replace(54,1)
+df['cod_provincia']=df['cod_provincia'].replace(58,5)
+df['cod_provincia']=df['cod_provincia'].replace(62,5)
+df['cod_provincia']=df['cod_provincia'].replace(66,2)
+df['cod_provincia']=df['cod_provincia'].replace(70,4)
+df['cod_provincia']=df['cod_provincia'].replace(74,4)
+df['cod_provincia']=df['cod_provincia'].replace(78,5)
+df['cod_provincia']=df['cod_provincia'].replace(82,3)
+df['cod_provincia']=df['cod_provincia'].replace(86,2)
+df['cod_provincia']=df['cod_provincia'].replace(90,2)
+df['cod_provincia']=df['cod_provincia'].replace(94,5)
+
+
+# Visualización de datos vacios
+# ==============================================================================
+msno.bar(df)
+
+
+# Eliminación de nulos en target = mpuntaje 
+# ==============================================================================
+df = df[df['mdesemp'].notna()]
+df = df.rename(columns={'mdesemp': 'target'})
+
+# Creación de df de 27 variables seleccionadas 
+# ==============================================================================
+df1 = df[['sector','ambito','cod_provincia','ap1','ap2','ap3a','ap4', 'ap7a', 
+          'ap7c', 'ap9', 'ap10', 'ap16', 
+          'ap17', 'ap24','ap26a','ap26b', 
+          'ap27a','ap27b','ap31', 'ap35', 'ap36a', 
+          'ap41b','compañeros','target','mpuntaje','ldesemp','lpuntaje','isocioa']].copy()
+df1 = df1.rename(columns={'ap1': 'edad','ap2':'sexo','ap3a': 'nacionalidad' ,'ap4':'personas_vives', 'ap7a': 'casa_internet', 
+                          'ap7c':'casa_compu', 'ap9':'mama_niveledu', 'ap10': 'papa_niveledu', 'ap16': 'jardin_inf', 
+                          'ap17': 'repetiste', 'ap24': 'reexplic_doc','ap26a':'hacen_deporte','ap26b':'leen_libros', 
+                          'ap27a':'celular_propio','ap27b':'celular_internet', 'ap31':'bus_inf',
+                          'ap35': 'grupo_otros', 'ap36a': 'ayudan_otros', 
+                          'ap41b':'interp_mate','compañeros':'companeros'})
+df1.info()
+
+# Visualizamos las variables seleccionadas en este nuevo df 
+msno.bar(df1)
+
+
+# Analisis univariado
+# ==============================================================================
+# Tipos de datos - tenemos int & floats
+df1.dtypes
+
+# Principales Estadisticos:
+df1.describe().T
+# dada las características previamente descripta de algunos datos, los valores obtenidos 
+# en mínimos y máximos representan estados de las variables descriptivas (ejemplo: si = 1 o no= 0)
+
+
+# Analisis de la variable: ldesemp
+# ==============================================================================
+df1['ldesemp'].unique()
+# indicaria que tenemos Nan en esta variable
+
+sns.countplot(df1['ldesemp'])
+# Nos indicaria que hay mas alumnos con un desempeño satisfactorio o avanzado
+
+# Podemos analizar las cantidades 
+frec = df1["ldesemp"].value_counts()
+frec
+
+# Es posible  guardar esa información en un dataframe
+frecDf = pd.DataFrame(frec)
+frecDf
+
+# Nombramos la columna como Frecuencia Absoluta = FrecAbs
+frecDf.rename(columns={'ldesemp':'FrecAbs'},inplace=True)
+frecDf
+
+# Obtenemos los valores de las Frecuencias Absolutas
+FrecAbsValores = frecDf["FrecAbs"].values
+FrecAbsValores
+
+# Calculamos la Frecuencia Relativa en porcentajes
+frecDf["FrecRel%"] = round(100 * frecDf["FrecAbs"]/len(df.ldesemp),2)
+frecDf
+
+# Analisis de variable: isocioa
+# ==============================================================================
+# Revisamos la variable a explorar (Isocioam)
+df1.isocioa.value_counts()
+
+cantidad_valores = list(df1.isocioa.value_counts())
+cantidad_valores
+
+valores_variable = [2, 3, 1]
+
+# Creamos un histograma con los valores
+plt.hist(df1.isocioa, color=['#37AB65'])
+
+# Grafico de torta: 
+plt.pie(cantidad_valores,labels=valores_variable , autopct="%0.1f %%",)
+plt.axis("equal")
+plt.show()
+
+# Observación:
+# En ambos gráficos observamos que hay menor cantidad de alumnos con un índice socioeconómico bajo (16%), seguidos por aquellos de alto índice (19%). 
+# La mayor cantidad de alumnos cuentan con un índice socioeconómico medio (64.1%)
+
+df1_isocioa = df1['isocioa']
+df1_isocioa['isocioa'] = df1['isocioa'].fillna('NaN')
+sns.countplot( data = df1_isocioa, x='isocioa')
+plt.xticks(np.arange(4), ("1", "2","3","NaN"))
+plt.show()
+
+# Analisis de variable: sector
+# ==============================================================================
+df1['sector'].unique()
+
+sns.countplot(df1['sector'])
+#Nos indicaria que hay mas alumnos en el sector estatal
+
+# Corregimos el gráfico para que nos muestre cada sector:
+df1_sec = df1['sector']
+df1_sec['sector'] = df1['sector'].fillna('NaN')
+sns.countplot(data=df1_sec, x='sector')
+plt.xticks(np.arange(2), ("Privado", "Estatal"))
+plt.show()
+
+
+# Analisis de variable: ámbito
+# ==============================================================================
+# Corregimos los valores NaN del df y los graficamos
+df1_amb = df1['ambito']
+df1_amb['ambito'] = df1['ambito'].fillna('NaN')
+sns.countplot(data=df1_amb, x='ambito')
+plt.xticks(np.arange(2), ("Urbano", "Rural"))
+plt.show()
+
+# Nos mostrarìa que hay mayor cantidad de alumnos que concurren a escuelas en ámbitos rurales
+
+# Analisis de variable: cod_provincia
+# ==============================================================================
+
+df1_sec = df1['cod_provincia']
+df1_sec['cod_provincia'] = df1['cod_provincia'].fillna('NaN')
+sns.countplot(data=df1_sec, x='cod_provincia')
+plt.xticks(np.arange(5), ('Noroeste', 'Nordeste','Pampeana','Cuyo','Patagonia'))
+plt.show()
+# Nos indicaria que hay mas alumnos en la región pampeana (que incluye Bs.As.)
+
+# hisotgrama con matplotlib - para observar el porcentaje de evaluaciones de cada sector provincial
+plt.hist(df1.cod_provincia, weights=np.ones(len(df1.cod_provincia)) / len(df1.cod_provincia))
+
+plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+plt.show()
+
+# Casi un 60% de los alumnos es de la región 3
+# El resto ocupa alrededor de un 10%, siendo la región patagonica aquella con menos alumnos 
+
+
+# Analisis de la variable: edad
+# ==============================================================================
+df1_edad = df1['edad']
+df1_edad['edad'] = df1['edad'].fillna('NaN')
+sns.countplot(data=df1_edad, x='edad')
+plt.xticks(np.arange(3), ("12", "11","NaN"))
+plt.show()
+# Observamos que la mayoria de los alumnos tiene 11 años, aunque existen nulos en esta variable
+
+
+# Analisis de la variable: sexo
+# ==============================================================================
+df1_sex = df1['sexo']
+df1_sex['sexo'] = df1['sexo'].fillna('NaN')
+sns.countplot(data=df1_sex, x='sexo')
+plt.xticks(np.arange(3), ("F", "M","NaN"))
+plt.show()
+# Notamos que presentan valores similares. Existen valores nulos en esta variable
+
+
+# Analisis de variables: otras
+# ==============================================================================
+df1.info()
+# Es posible realizar una rápida revisión de algunas de las variables a traves de la siguiente orden:
+for nombre_columna in df1.columns[5:24]:
+    sns.countplot(df1[nombre_columna])
+    plt.show()
+
+# Observaciones
+# ==============================================================================
+# Algunas de las observaciones obtenidas a partir de este tipo de análisis son:
+# La variable "edad", nos indica la edad de los alumnos. El censo se realizó a los alumnos de 6 grados de la primaria, por lo que el 94% de los alumnos tienen menos de 13 años. El 5% de los alumnos tiene más de 13 años, esto abarca a aquellos que repitieron el grado escolar como a aquellos alumnos que cumplen los años posterior al mes de julio, lo cual hace que tengan por su fecha de nacimiento un año más.
+# El censo se hizo a la misma cantidad de mujeres que de varones.
+# El censo se efectuó en Argentina, por lo que más del 97 % de los alumnos son argentinos, y solamente un 3% de los alumnos es extranjero.
+# El 66,25% de los estudiantes que respondieron el censo viven con más de 3 personas en su casa.
+# El 81.38% de los estudiantes que respondieron el censo tienen internet en su casa.
+# El 77.51% de los estudiantes que respondieron tienen una computadora en su casa.
+# El 41.53% de los estudiantes que respondieron su mamá tiene un nivel de educación secundaria.
+# El 42.95% de los estudiantes que respondieron su papá tiene un nivel de educación secundaria.
+# El 98.52% de los estudiantes que respondieron asistieron al jardín de infantes.
+# El 90.33% de los estudiantes que respondieron no repitieron de grado.
+# El 73.57% de los estudiantes dicen que el docente no vuelve a repetir la explicación si no entendieron el problema.
+
+
+# Analisis bivariado - multivariado
+# ==============================================================================
+# El análisis en esta etapa resultó complicada debido a la naturaleza categórica de las variables. 
+
+# Categórica vs. categórica 
+pd.crosstab(df1.ldesemp, df1.target)
+
+# Valores en relativo
+pd.crosstab(df1.ldesemp, df1.target, normalize=True)
+
+# Problemática de los gráficos de análisis bivariado y multivariado
+# ==============================================================================
+# Scatterplot - no tiene sentido para nuestras variables - EJEMPLO:
+df1.plot.scatter(x='target', y='ldesemp')
+
+#De manera similar, aplicar otros gráficos no nos brinda mucha información
+
+#Si deseamos crear un Pairplot del dataset 
+#plt.figure(dpi=120)
+#sns.pairplot(df1)
+#plt.show()
+
+#Realizamos un mapa de calor con df1:
+fig, ax = plt.subplots(figsize=(13,7))
+
+sns.heatmap(df1.corr(), cmap="YlGnBu")
+plt.title('Mapa de calor del Dataset', fontsize = 20)
+plt.show()
+# En df1plot encontramos muchos datos pero el mapa de calor nos brinda una idea de posibles correlaciones
+
+#Generamos df2 para eviar posibles cambios en nuestro df 
+df2 = df1
+
+#Es posible seleccionar algunas de las columnas de interés para mejor visualización
+df_small = df2.iloc[:,7:13]
+correlation_mat = df_small.corr()
+sns.heatmap(correlation_mat, annot = True)
+plt.show()
+#Aqui vemos por ejemplo que parece existir una correlación más elevada entre los niveles educativos de los padres
+
+#Si usamos de la correlación de Pearson 
+plt.figure(figsize=(20,15)) 
+cor = df2.corr() 
+sns.heatmap(cor, annot=True, cmap=plt.cm.Reds) 
+plt.show()
+# Correlación con la variable de salida 
+cor_target = abs(cor["target"])
+# Selección de características correlacionadas por un índice mayor a 0.3
+características_relevantes = cor_target[cor_target>0.3] 
+características_relevantes
+
+# Las variables que cumplen esa característica son mpuntaje, ldesemp, y lpuntaje. El siguiente paso es analizar la correlación entre las variables de interés
+
+# Correlacion entre si
+print(df2[["mpuntaje","lpuntaje"]].corr()) 
+print(df2[["ldesemp","mpuntaje"]].corr())
+# Parece haber correlación entre lpuntaje y mpuntaje: esto es lo esperado ya que los alumnos que aprueban lengua, posiblemente se desempeñen mejor en matemáticas
+# No parece haber correlacion entre ldesemp y mpuntaje  
+
+# Si analizamos la densidad de 2 de nuestras variables de interes a traves de displot:
+sns.displot(df1[["mpuntaje",'lpuntaje']], kde=True, stat="density")
+# podemos notar que hay una cierta similitud en la dispersión de las áreas
+# pero no un solapamiento total de los valores
+
+# Pero este tipo de gráfico (displot) no es posible aplicar en cualquier combinación de variables. Ejemplo:
+sns.displot(df1[["mpuntaje",'sexo']], kde=True, stat="density")
+# ya que sexo solo tiene 2 estados, y el puntaje atraviesa una serie de valores
+
+# Podemos considerar realizar un scatterplot, donde tomamos las variables del puntaje en ambas materias
+# (lengua y matemáticas) respecto al sexo
+plt.figure(figsize=(20,10))
+sns.scatterplot(data=df1, x="mpuntaje",y="lpuntaje",hue = 'sexo')
+plt.show()
+# En este caso vemos que hay una distribución homogenea de los datos, sin una tendencia marcada a simple vista
+
+# En caso de utilizar el mismo gráfico para las variables de puntajes en lengua y matemáticas
+# respecto al código de provincia, también resulta dificultoso obtener una conclusión al respecto
+plt.figure(figsize=(20,10))
+sns.scatterplot(data=df1, x="mpuntaje",y="lpuntaje",hue = 'cod_provincia',size='cod_provincia')
+plt.show()
+# Posiblemente los datos parecen concentrarse en valores medios, mas que extremos en ambos casos
+
+# Creamos un sample del dataset para utilizar el pandas_profiling
+df2 = df1.sample(10000)
+profile = pandas_profiling.ProfileReport(df2)
+profile
+
+#Los índices del profile que nos permiten un mejor análisis dadas nuestras variables son Cramer's y Phik
+# A modo de ejemplo se desarrolla el análisis realizado sobre las variables con Phik
+# se usan los valores seleccionados para el profile
+
+# Importamos librerias
+import phik
+from phik.report import plot_correlation_matrix
+from phik import report
+
+# Por default la libreria elimina los Nans
+phik_overview = df2.phik_matrix()
+phik_overview.round(2) # se redondea a 2 decimales
+interval_cols =df2
+phik_overview = df2.phik_matrix(interval_cols=interval_cols)
+
+#Se procede a realizar el gráfico
+plot_correlation_matrix(phik_overview.values, x_labels=phik_overview.columns, 
+                        y_labels=phik_overview.index, vmin=0, vmax=1, color_map="Greens", 
+                        title=r"Corralación de $\phi_K$", figsize=(15, 10))
+plt.tight_layout()
+
+# Observaciones
+# ==============================================================================
+# Este profile nos permite analizar una muestra de nuestro dataset. Aqui notamos las características de cada variable y 
+# las posibles correlaciones entre algunas de ellas a través de los índices de Cramer's V y de PhiK. Algunas de ellas son:
+# - el indice socioeconómico del alumno y el nivel educativo de los padres
+# - el nivel educativo de los padres y el sector en donde asisten los alumnos
+# - hay relaciones intuitivas, por ejemplo en la presencia de internet en la casa y la posibilidad de tener computadora o celular
+# - el puntaje y el desempeño en lengua tienen un alto indice de correlación (0.9), asi como el puntaje y 
+#   desempeño en matemáticas (1.0), lo cual es esperable dado que son variables que provienen de la ponderación de las otras
+# Consideramos que aunque algunos los valores son bajos para indicar una fuerte correlación entre si, pueden ser útiles en análisis posteriores.
+
+
+# Imputación de datos
+# ==============================================================================
+# La gran cantidad de nulos en el dataset original como a traves de los tratamientos anteriores, nos llevó a probar distintos métodos de limpieza.
+# A continuación se muestra la imputación final realizada a los datos. Creemos no obstante, que es posible mejorarla o incluso mejorar las etapas 
+#  previas (selección y análisis de variables) que podrían llevar a una mejora de las etapas posteriores (desarrollo y mejora de algoritmos).
+
+
+# Imputación sensible
+# ==============================================================================
+# Para aquellas variables con un valor bajo de NaN (menos del 10%):
+# edad
+# nacionalidad
+# sexo
+# casa_internet
+
+
+# Limpieza de nulos: edad
+# ==============================================================================
+# Esta variable cuenta con un 2% de NaN
+# Realizamos un gráfico de esta variable
+df1_edad = df1['edad']
+df1_edad['edad'] = df1['edad'].fillna('NaN')
+sns.countplot(data=df1_edad, x='edad')
+plt.xticks(np.arange(3), ("12", "11","NaN"))
+plt.show()
+
+df1['edad'].value_counts(dropna = False)
+
+# Podemos analizar las cantidades de manera similar a la previamente aplicada
+frec_edad = df1_edad["edad"].value_counts()
+frec_edadDf = pd.DataFrame(frec_edad)
+frec_edadDf.rename(columns={'edad':'FrecAbs'},inplace=True)
+frec_edadDf["FrecRel%"] = round(100 * frec_edadDf["FrecAbs"]/len(df1_edad.edad),2)
+frec_edadDf
+
+# Comprobamos que el valor de vacios es del 2%, para no modificar los porcentajes de las diferentes edades, 
+# decidimos dividir los vacios en iguales partes en las dos categorias "11" y "12" respectivamente.
+
+df1['edad'].value_counts(dropna = False)/len(df1['edad'])*100
+
+cant_edad = df1['edad'].isna().sum()
+np.random.seed(0)
+random_edad = (np.random.uniform(size=cant_edad) < 0.5) * 1
+
+df1.loc[df1['edad'].isna(),'edad'] = random_edad
+
+df1['edad'].value_counts(dropna = False)
+
+sns.countplot(data=df1, x='edad')
+plt.xticks(np.arange(2), ("12", "11"))
+plt.show()
+
+# De esta manera los Nan se han "repartido" entre ambas posibilidades de la variable.
+
+# Reemplazar los vacios en: Nacionalidad
+# ==============================================================================
+# En este caso la cantidad de NaN es similar a la opcion de "extranjeros".
+
+df1_nac = df1['nacionalidad']
+df1_nac['nacionalidad'] = df1['nacionalidad'].fillna('NaN')
+sns.countplot(data=df1_nac, x='nacionalidad')
+plt.xticks(np.arange(3), ("Arg", "Ext","NaN"))
+plt.show()
+
+# Comprobamos que el valor de vacios es menos del 2%, en este caso considerando que el país donde 
+# se realizó la escuesta es Argentina, los vacios serán considerados como Argentinos. 
+
+df1['nacionalidad'].value_counts(dropna = False)/len(df1['nacionalidad'])*100
+
+df1['nacionalidad'] = df1['nacionalidad'].fillna(0)
+
+sns.countplot(data=df1, x='nacionalidad')
+plt.xticks(np.arange(2), ("Ext", "Arg"))
+plt.show()
+
+df1['nacionalidad'].value_counts(dropna = False)/len(df1['nacionalidad'])*100
+
+
+# Tratamiento de vacios en variable: sexo
+# ==============================================================================
+# Tal como previamente mencionamos, las cantidades de ambas opciones de esta variable son similares.
+# Visualizamos los datos dentro de la variable:
+
+df1_sex = df1['sexo']
+df1_sex['sexo'] = df1['sexo'].fillna('NaN')
+sns.countplot(data=df1_sex, x='sexo')
+plt.xticks(np.arange(3), ("F", "M","NaN"))
+plt.show()
+
+df1['sexo'].value_counts(dropna = False)/len(df1['sexo'])*100
+
+# Teniendo en cuenta que la cantidad de encuentados hombres y mujeres es prácticamente igual, 
+# se crea una lista con valores aleatorio 50%/50%, que tiene la misma longitud que la variabe cant_sex. 
+# Uso la semilla (seed) aleatoria número (0)
+
+cant_sex = df1['sexo'].isna().sum()
+np.random.seed(0)
+random_ap2 = (np.random.uniform(size=cant_sex) < 0.5) * 1
+
+df1.loc[df1['sexo'].isna(),'sexo'] = random_ap2
+
+df1['sexo'].value_counts(dropna = False)/len(df1['sexo'])*100
+
+sns.countplot(data=df1, x='sexo')
+plt.xticks(np.arange(2), ("F", "M"))
+plt.show()
+
+# De esta manera, nuevamente logramos integrar los Nan a nuestros datos.
+
+
+# Tratamiento de los vación en la variable: casa_internet
+# ==============================================================================
+# Al tratarse de otra variable con bajo porcentaje de NaN respecto al total de datos, 
+# se crea una lista con valores aleatorio 80%/20%, que tiene la misma longitud que la variable cant_cint. 
+# Se usa la semilla (seed) aleatoria número (1), y se agrega el 80% de ceros.
+
+df1_int = df1['casa_internet']
+df1_int['casa_internet'] = df1['casa_internet'].fillna('NaN')
+sns.countplot(data=df1_int, x='casa_internet')
+plt.xticks(np.arange(3), ("No", "Sí","NaN"))
+plt.show()
+# Visualiazamos nuestros datos originales
+
+df1['casa_internet'].value_counts(dropna = False)/len(df1['casa_internet'])*100
+# En porcentajes hay un 9.5% de NaN 
+
+#Teniendo en cuenta que la cantidad de encuentados el 70% de los alumnos cuenta con conexión a internet, 
+# se crea una lista con valores aleatorio 70%/30%, que tiene la misma longitud que la variabe casa_internet. 
+# Uso la semilla (seed) aleatoria número (1).
+
+cant_cint = df1['casa_internet'].isna().sum()
+np.random.seed(1)
+random_cint = (np.random.uniform(size=cant_cint) < 0.7) * 1
+
+df1.loc[df1['casa_internet'].isna(),'casa_internet'] = random_cint
+df1['casa_internet'].value_counts(dropna=False)
+
+df1['casa_internet'].value_counts(dropna = False)/len(df1['casa_internet'])*100
+# Notamos como la incorporación de Nan cambia los porcentajes previamente observados
+
+# De forma gráfica nuestra variable se ve asi:
+sns.countplot(data=df1, x='casa_internet')
+plt.xticks(np.arange(2), ("No", "Sí"))
+plt.show()
+
+
+# Imputación predictiva
+# ==============================================================================
+# Otras variables presentaron más de un 10% de NaN. En ese caso para su tratamiento se utilizará la función "fancyimpute".
+# Aunque se probaron otros métodos, los resultados fueron similares, y en algunos casos requerian una elevada memoria ram.
+# A continuación se muestra el proceso para las 14 variables elegidas.
+
+mice_impute = IterativeImputer()
+traindatafill = mice_impute.fit_transform(df1[['personas_vives', 'casa_compu', 'jardin_inf', 'repetiste', 'reexplic_doc', 
+                                               'hacen_deporte','leen_libros','celular_propio','celular_internet',
+                                               'bus_inf','grupo_otros','ayudan_otros','interp_mate','companeros']])
+traindatafill= pd.DataFrame(traindatafill)
+
+traindatafill = traindatafill.astype('int')
+
+df1['personas_vives'] = traindatafill[0]
+df1['casa_compu'] = traindatafill[1]
+df1['jardin_inf'] = traindatafill[2]
+df1['repetiste'] = traindatafill[3]
+df1['reexplic_doc'] = traindatafill[4]
+df1['hacen_deporte'] = traindatafill[5]
+df1['leen_libros'] = traindatafill[6]
+df1['celular_propio'] = traindatafill[7]
+df1['celular_internet'] = traindatafill[8]
+df1['grupo_otros'] = traindatafill[9]
+df1['bus_inf'] = traindatafill[10]
+df1['ayudan_otros'] = traindatafill[11]
+df1['interp_mate'] = traindatafill[12]
+df1['companeros'] = traindatafill[13]
+
+df1.isnull().sum()
+
+
+# Variable: personas_vives
+# ==============================================================================
+# Esta variable indicaba con cuantas personas convive el alumno, no obstante conteníaun elevado numero de Nan. 
+# Esto posiblemente se deba a que la consigna no fue clara o correctamente interpretada, por lo que procedimos a eliminarla.
+
+df1 = df1[df1['personas_vives'].notna()]
+
+df1.isnull().sum()
+
+
+# Unificación del nivel académico familiar
+# ==============================================================================
+# Creamos la variable "familia_edu"= "edu", que tomará el nivel educativo más alto de los padres de cada alumno. 
+# Asi se busca reducir la cantidad de nulos y simplificar una variable.
+
+familia_edu = df1[['mama_niveledu','papa_niveledu']].max(axis=1)
+
+familia_edu.isnull().sum()
+
+df1 = pd.concat([df1, familia_edu], axis = 1)
+
+df1 = df1.rename(columns={0: 'edu'})
+
+df1 = df1[df1['edu'].notna()]
+
+df1.isnull().sum()
+
+
+# Tratamiento de Dummies
+# ==============================================================================
+# Dadas las condiciones de algunas variables de nuestro dataset, consideramos que sería útil transformar
+# algunas variables a través de la función get_dummies para poder luego obtener resultados.
+
+# Variable: edu
+# ==============================================================================
+# Esta variable proviene de la unión de las variables de los niveles educativos maternos y paternos. 
+# En este caso contamos con 4 opciones donde la variable marca el máximo nivel educativo alcanzado por cualquiera de los progenitores.
+
+edu_dummies = pd.get_dummies(df1['edu'],prefix ='edu_')
+
+edu_dummies
+
+df1 = pd.concat([df1, edu_dummies],axis=1)
+
+df1 = df1.drop(['edu'],axis=1)
+
+df1.info()
+
+# De esta manera tenermos las  4 opciones de "edu" como una variable cada una de ellas dentro de nuestro dataframe.
+
+
+# Variable: cod_provincia
+# ==============================================================================
+# En este caso, cod_provincia provenia de la agrupación de las provincias argentinas en 5 regiones. 
+# Ahora, procederemos a convertir cada una de ellas en una variable.
+
+prov_dummies = pd.get_dummies(df1['cod_provincia'], 
+                             prefix='provincia_')
+
+prov_dummies
+
+df1 = pd.concat([df1, prov_dummies], axis = 1)
+
+df1 = df1.drop(['cod_provincia'],axis=1)
+
+df1.info()
+
+# Nuevamente podemos revisar que efectivamente tenemos el dataframe esperado. En este caso, "cod_provincia" se reemplazó por "provincia" en su nuevo formato.
+
+
+# Limpieza de nulos: ldesemp
+# ==============================================================================
+df1 = df1[df1['ldesemp'].notna()] 
+
+
+# Visualización del dataframe terminado
+# ==============================================================================
+# En esta etapa y luego de los tratamientos realizados, procedemos a generar un nuevo dataframe con las 
+# variables corregidas y visualizarlas para controlar que sea el resultado esperado.
+
+dfinal = df1[['sector','ambito','edad', 'sexo', 'nacionalidad', 'personas_vives','casa_internet',
+              'casa_compu','jardin_inf','repetiste','reexplic_doc','hacen_deporte',
+              'leen_libros','celular_propio','celular_internet','bus_inf', 'grupo_otros',
+              'ayudan_otros','interp_mate','edu__0.0','edu__1.0','edu__2.0',
+              'edu__3.0','provincia__1','provincia__2','provincia__3',
+              'provincia__4','provincia__5','target','ldesemp']]
+dfinal.sample(10)
+dfinal.info()
+dfinal.isnull().sum()
+
+# Los datos parecen estar de acuerdo a lo esperado. 
+# Podemos realizar un gráfico de correlación para comprobar los cambios y sus efectos.
+
+fig, ax=plt.subplots(figsize=(30,15))
+ax=sns.heatmap(dfinal.corr(),annot=True)
+plt.show()
+
+# Correlación del resto de variables con nuestra variable "target"
+dfinal.corr()['target'] 
+
+# Otra forma de graficar nuestros resultados:
+corrmat = dfinal.corr()
+grafico = sns.clustermap(corrmat, cmap ="YlGnBu", linewidths = 0.1);
+plt.setp(grafico.ax_heatmap.yaxis.get_majorticklabels(), rotation = 0)
+grafico
+
+dfinal.shape
+# Nuestro dataframe final cuenta con  427943 filas y 30 columnas
+
+dfinal.info()
+
+# Guardar el dataset final
+# ==============================================================================
+
+# En este punto y debido al tiempo que llevan las operaciones, recomendamos guardar el dataframe obrtenido: "dfinal" 
+# y proseguir los siguientes pasos en un nuevo archivo.
